@@ -1,13 +1,17 @@
+import { useRouter } from "expo-router";
 import { Field, Form } from "houseform";
 import React from "react";
-import { Alert, TextInput, View } from "react-native";
+import { TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 import { Text } from "../components/Text";
 import HomeImage from "./HomeImage";
 
 const Page = () => {
+	const router = useRouter();
+
 	return (
-		<View className="flex flex-1 pt-8">
+		<SafeAreaView className="flex flex-1 pt-8" edges={["bottom", "left", "right"]}>
 			<View className="justify-center flex-row">
 				<HomeImage />
 			</View>
@@ -15,17 +19,14 @@ const Page = () => {
 				<Text className="text-2xl" bold>
 					Search
 				</Text>
-				<Form
+				<Form<{ query: string }>
 					onSubmit={(values) => {
-						Alert.alert("Form was submitted with: " + JSON.stringify(values));
+						router.push({ pathname: "/search", params: { query: values.query } });
 					}}
 				>
-					{({ isValid, submit }) => (
+					{({ submit }) => (
 						<View className="w-full">
-							<Field
-								name="email"
-								onBlurValidate={z.string().email("This must be an email")}
-							>
+							<Field name="query" onBlurValidate={z.string().min(1)}>
 								{({ value, setValue, onBlur, errors }) => {
 									return (
 										<View className="w-full">
@@ -48,7 +49,7 @@ const Page = () => {
 					)}
 				</Form>
 			</View>
-		</View>
+		</SafeAreaView>
 	);
 };
 
