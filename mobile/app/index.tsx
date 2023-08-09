@@ -13,6 +13,8 @@ import HomeImage from "./HomeImage";
 
 const Page = () => {
 	const router = useRouter();
+
+	// Fetch contacts from the async storage
 	const { data: contacts } = useQuery(["contacts"], getContacts);
 
 	return (
@@ -24,6 +26,7 @@ const Page = () => {
 				<Text className="text-2xl mb-4" bold>
 					Search
 				</Text>
+				{/* Search form */}
 				<Form<{ query: string }>
 					onSubmit={(values) => {
 						router.push({ pathname: "/search", params: { query: values.query } });
@@ -53,6 +56,7 @@ const Page = () => {
 					<Text className="text-2xl" bold>
 						Contacts
 					</Text>
+					{/* Link to create a new contact */}
 					<Pressable
 						onPress={() =>
 							router.push({ pathname: "/contact/[id]", params: { id: "new" } })
@@ -62,6 +66,7 @@ const Page = () => {
 						<MaterialCommunityIcons name="account-plus" size={24} color="black" />
 					</Pressable>
 				</View>
+				{/* Contacts list */}
 				<FlatList
 					data={contacts}
 					className="w-full"

@@ -1,6 +1,7 @@
 import * as React from "react";
 import Svg, { ClipPath, Defs, G, Path, SvgProps } from "react-native-svg";
 
+// SVG home image from https://undraw.co/
 const HomeImage = (props: SvgProps) => (
 	<Svg width={268} height={207} fill="none" {...props}>
 		<G clipPath="url(#a)">

@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 const queryClient = new QueryClient();
 
 const Layout = () => {
+	// Load fonts
 	const [fontsLoaded] = useFonts({
 		Inter_400Regular,
 		Inter_600SemiBold,

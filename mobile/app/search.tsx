@@ -9,9 +9,12 @@ import { Text } from "../components/Text";
 import { getRecommendations } from "../lib/recommendations";
 
 const Page = () => {
-	const { query, price } = useLocalSearchParams<{ query: string; price?: string }>();
 	const router = useRouter();
 
+	// Get the query and price from the URL
+	const { query, price } = useLocalSearchParams<{ query: string; price?: string }>();
+
+	// Fetch recommendations from the API
 	const { data: recommendations, isLoading } = useQuery(
 		["search", query, price],
 		() =>
@@ -32,9 +35,11 @@ const Page = () => {
 		<SafeAreaView className="flex flex-1 pt-8 bg-slate-100" edges={["bottom", "left", "right"]}>
 			<View className="flex items-start flex-1 px-4">
 				<View className="flex flex-row justify-between items-center w-full mb-8">
+					{/* Search query */}
 					<Text className="flex-1 text-slate-500 mr-2" bold>
 						{query}
 					</Text>
+					{/* Price form */}
 					<Form<{ price: string }>
 						onSubmit={({ price }) => router.setParams({ query: query!, price })}
 					>
@@ -57,11 +62,13 @@ const Page = () => {
 						)}
 					</Form>
 				</View>
+				{/* Loading state */}
 				{isLoading ? (
 					<View className="flex-1 flex justify-center items-center w-full pb-20">
 						<ActivityIndicator color="#121212" size="large" />
 					</View>
 				) : (
+					// Outputs recommendations
 					<FlatList
 						data={recommendations}
 						className="w-full"

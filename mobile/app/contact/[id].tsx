@@ -18,37 +18,49 @@ import {
 import { getRecommendations } from "../../lib/recommendations";
 
 const Page = () => {
-	const { id, price } = useLocalSearchParams<{ id: string; price?: string }>();
+	// Initialize hooks
 	const router = useRouter();
 	const queryClient = useQueryClient();
+
+	// Get the ID and price from the URL
+	const { id, price } = useLocalSearchParams<{ id: string; price?: string }>();
+
+	// Create update contact mutation
 	const updateContactMutation = useMutation({
 		mutationFn: updateContact,
 		onSuccess: () => {
+			// Invalidate queries that depend on this contact
 			queryClient.invalidateQueries(["contact", id]);
 			queryClient.invalidateQueries(["contacts"]);
 		},
 	});
+
+	// Create delete contact mutation
 	const deleteContactMutation = useMutation({
 		mutationFn: deleteContact,
 		onSuccess: () => {
+			// Invalidate queries that depend on this contact and redirect to home page
 			queryClient.invalidateQueries(["contacts"]);
 			router.push({ pathname: "/" });
 		},
 	});
 
+	// If the ID is "new", create a new contact and redirect to it
 	useEffect(() => {
 		if (id === "new") {
 			createContact().then((contact) => {
-				router.push({ pathname: "/contact/[id]", params: { id: contact.id } });
+				router.replace({ pathname: "/contact/[id]", params: { id: contact.id } });
 				queryClient.invalidateQueries(["contacts"]);
 			});
 		}
 	}, [id]);
 
+	// Fetch contact from async storage
 	const { data: contact } = useQuery(["contact", id], () => getContact(id as string), {
 		enabled: !!id && id !== "new",
 	});
 
+	// Fetch recommendations from the server
 	const { data: recommendations, isFetching } = useQuery(
 		["search", contact?.interests, contact?.relationship, price],
 		() =>
@@ -68,6 +80,7 @@ const Page = () => {
 
 	return (
 		<SafeAreaView className="flex flex-1 bg-slate-100" edges={["bottom", "left", "right"]}>
+			{/* Adjust header title to contact name and add delete button */}
 			<Stack.Screen
 				options={{
 					headerTitle: `${contact?.name ? contact.name : "New Contact"}`,
@@ -92,6 +105,7 @@ const Page = () => {
 			/>
 			{contact ? (
 				<>
+					{/* Update contact form */}
 					<Form<UpdateContact>
 						onSubmit={(data) => {
 							updateContactMutation.mutate({ id: contact.id, data });
@@ -147,6 +161,7 @@ const Page = () => {
 						<Text className="text-2xl" bold>
 							Gift Ideas
 						</Text>
+						{/* Price form */}
 						<Form<{ price: string }>
 							onSubmit={({ price }) => router.setParams({ id: contact.id, price })}
 						>
@@ -169,11 +184,13 @@ const Page = () => {
 							)}
 						</Form>
 					</View>
+					{/* Show loading indicator if fetching recommendations */}
 					{isFetching ? (
 						<View className="flex-1 flex justify-center items-center w-full pb-20">
 							<ActivityIndicator color="#121212" size="large" />
 						</View>
 					) : (
+						// Output list of recommendations
 						<FlatList
 							data={recommendations}
 							className="w-full p-4"
