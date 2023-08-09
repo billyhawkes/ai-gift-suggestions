@@ -1,13 +1,20 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Field, Form } from "houseform";
 import { useEffect } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../components/Input";
 import RecommendationItem from "../../components/RecommendationItem";
 import { Text } from "../../components/Text";
-import { UpdateContact, createContact, getContact, updateContact } from "../../lib/contacts";
+import {
+	UpdateContact,
+	createContact,
+	deleteContact,
+	getContact,
+	updateContact,
+} from "../../lib/contacts";
 import { getRecommendations } from "../../lib/recommendations";
 
 const Page = () => {
@@ -19,6 +26,13 @@ const Page = () => {
 		onSuccess: () => {
 			queryClient.invalidateQueries(["contact", id]);
 			queryClient.invalidateQueries(["contacts"]);
+		},
+	});
+	const deleteContactMutation = useMutation({
+		mutationFn: deleteContact,
+		onSuccess: () => {
+			queryClient.invalidateQueries(["contacts"]);
+			router.push({ pathname: "/" });
 		},
 	});
 
@@ -57,6 +71,23 @@ const Page = () => {
 			<Stack.Screen
 				options={{
 					headerTitle: `${contact?.name ? contact.name : "New Contact"}`,
+					headerRight: () => (
+						<>
+							{id && id !== "new" ? (
+								<Pressable
+									onPress={() => {
+										deleteContactMutation.mutate(id);
+									}}
+								>
+									<MaterialCommunityIcons
+										name="account-remove"
+										size={24}
+										color="#121212"
+									/>
+								</Pressable>
+							) : null}
+						</>
+					),
 				}}
 			/>
 			{contact ? (
@@ -120,16 +151,16 @@ const Page = () => {
 							onSubmit={({ price }) => router.setParams({ id: contact.id, price })}
 						>
 							{({ submit }) => (
-								<Field name="price" initialValue={""}>
+								<Field name="price" initialValue={price ?? ""}>
 									{({ value, setValue }) => {
 										return (
 											<Input
-												className="w-auto min-w-[120px]"
+												className="w-auto min-w-[108px]"
 												icon="cash"
 												value={value}
 												onChangeText={setValue}
 												onSubmitEditing={submit}
-												placeholder="Max Price"
+												placeholder="Max ($)"
 												small
 											/>
 										);

@@ -31,24 +31,24 @@ const Page = () => {
 	return (
 		<SafeAreaView className="flex flex-1 pt-8 bg-slate-100" edges={["bottom", "left", "right"]}>
 			<View className="flex items-start flex-1 px-4">
-				<View className="flex flex-row justify-between items-center w-full">
-					<Text className="text-2xl" bold>
-						Search
+				<View className="flex flex-row justify-between items-center w-full mb-8">
+					<Text className="flex-1 text-slate-500 mr-2" bold>
+						{query}
 					</Text>
 					<Form<{ price: string }>
 						onSubmit={({ price }) => router.setParams({ query: query!, price })}
 					>
 						{({ submit }) => (
-							<Field name="price" initialValue={""}>
+							<Field name="price" initialValue={price ?? ""}>
 								{({ value, setValue }) => {
 									return (
 										<Input
-											className="w-auto min-w-[120px]"
+											className="w-auto min-w-[108px]"
 											icon="cash"
 											value={value}
 											onChangeText={setValue}
 											onSubmitEditing={submit}
-											placeholder="Max Price"
+											placeholder="Max ($)"
 											small
 										/>
 									);
@@ -57,7 +57,6 @@ const Page = () => {
 						)}
 					</Form>
 				</View>
-				<Text className="text-lg text-slate-500 my-4">{query}</Text>
 				{isLoading ? (
 					<View className="flex-1 flex justify-center items-center w-full pb-20">
 						<ActivityIndicator color="#121212" size="large" />

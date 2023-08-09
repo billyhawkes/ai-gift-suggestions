@@ -27,7 +27,12 @@ const Layout = () => {
 						}}
 					/>
 					<Stack.Screen name="contact/[id]" />
-					<Stack.Screen name="search" />
+					<Stack.Screen
+						name="search"
+						options={{
+							headerTitle: "Search",
+						}}
+					/>
 				</Stack>
 			</QueryClientProvider>
 		</SafeAreaProvider>

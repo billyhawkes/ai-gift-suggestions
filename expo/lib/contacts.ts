@@ -59,3 +59,13 @@ export const updateContact = async ({ id, data }: { id: string; data: UpdateCont
 	await setContacts(contacts);
 	return contacts[index];
 };
+
+export const deleteContact = async (id: string) => {
+	const contacts = await getContacts();
+	const index = contacts.findIndex((contact) => contact.id === id);
+	if (index === -1) {
+		throw new Error("Contact not found");
+	}
+	contacts.splice(index, 1);
+	await setContacts(contacts);
+};
