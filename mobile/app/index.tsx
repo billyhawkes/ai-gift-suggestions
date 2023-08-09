@@ -17,7 +17,7 @@ const Page = () => {
 
 	return (
 		<SafeAreaView className="flex flex-1 bg-slate-100" edges={["bottom", "left", "right"]}>
-			<View className="justify-center flex-row">
+			<View className="justify-center flex-row pt-8">
 				<HomeImage />
 			</View>
 			<View className="mt-8 flex items-start p-4">
