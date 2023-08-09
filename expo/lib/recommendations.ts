@@ -16,13 +16,8 @@ export const getRecommendations = async ({
 	relationship?: string;
 	price?: string;
 }) => {
-	console.log(
-		`http://localhost:3000/api/search?query=${query}&relationship=${relationship}&price=${
-			price ?? "50"
-		}`
-	);
 	const res = await fetch(
-		`http://localhost:3000/api/search?query=${query}&relationship=${relationship}&price=${
+		`https://ai-gift-suggestions.vercel.app/api/search?query=${query}&relationship=${relationship}&price=${
 			price ?? "50"
 		}`
 	);
