@@ -1,8 +1,9 @@
 {
 	"expo": {
 		"scheme": "your-app-scheme",
-		"name": "mobile",
-		"slug": "mobile",
+		"name": "Gifter",
+		"slug": "gifter",
+		"privacy": "public",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
