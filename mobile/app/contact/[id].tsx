@@ -39,7 +39,7 @@ const Page = () => {
 	useEffect(() => {
 		if (id === "new") {
 			createContact().then((contact) => {
-				router.replace({ pathname: "/contact/[id]", params: { id: contact.id } });
+				router.push({ pathname: "/contact/[id]", params: { id: contact.id } });
 				queryClient.invalidateQueries(["contacts"]);
 			});
 		}

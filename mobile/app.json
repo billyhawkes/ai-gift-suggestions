@@ -1,9 +1,8 @@
 {
 	"expo": {
-		"scheme": "your-app-scheme",
+		"scheme": "acme",
 		"name": "Gifter",
 		"slug": "gifter",
-		"privacy": "public",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/icon.png",
@@ -12,6 +11,9 @@
 			"image": "./assets/splash.png",
 			"resizeMode": "contain",
 			"backgroundColor": "#ffffff"
+		},
+		"updates": {
+			"useClassicUpdates": true
 		},
 		"assetBundlePatterns": ["**/*"],
 		"ios": {
@@ -25,6 +27,7 @@
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"
-		}
+		},
+		"plugins": ["expo-router"]
 	}
 }
