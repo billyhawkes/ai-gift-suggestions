@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Field, Form } from "houseform";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../components/Input";
@@ -9,21 +9,24 @@ import { Text } from "../components/Text";
 import { getRecommendations } from "../lib/recommendations";
 
 const Page = () => {
-	const { query } = useLocalSearchParams<{ query: string }>();
-	const [price, setPrice] = useState<string>("");
-	const queryClient = useQueryClient();
+	const { query, price } = useLocalSearchParams<{ query: string; price?: string }>();
+	const router = useRouter();
 
-	const {
-		data: recommendations,
-		isLoading,
-		refetch,
-	} = useQuery(["search", query], () => getRecommendations(query as string), {
-		enabled: !!query,
-		cacheTime: 5 * 60 * 1000,
-		refetchOnMount: false,
-		refetchOnReconnect: false,
-		refetchOnWindowFocus: false,
-	});
+	const { data: recommendations, isLoading } = useQuery(
+		["search", query, price],
+		() =>
+			getRecommendations({
+				query: query!,
+				price,
+			}),
+		{
+			enabled: !!query,
+			cacheTime: 5 * 60 * 1000,
+			refetchOnMount: false,
+			refetchOnReconnect: false,
+			refetchOnWindowFocus: false,
+		}
+	);
 
 	return (
 		<SafeAreaView className="flex flex-1 pt-8 bg-slate-100" edges={["bottom", "left", "right"]}>
@@ -32,15 +35,27 @@ const Page = () => {
 					<Text className="text-2xl" bold>
 						Search
 					</Text>
-					<Input
-						className="w-auto min-w-[120px]"
-						icon="cash"
-						value={price ?? ""}
-						onChangeText={setPrice}
-						onSubmitEditing={() => queryClient.resetQueries(["search"])}
-						placeholder="Max Price"
-						small
-					/>
+					<Form<{ price: string }>
+						onSubmit={({ price }) => router.setParams({ query: query!, price })}
+					>
+						{({ submit }) => (
+							<Field name="price" initialValue={""}>
+								{({ value, setValue }) => {
+									return (
+										<Input
+											className="w-auto min-w-[120px]"
+											icon="cash"
+											value={value}
+											onChangeText={setValue}
+											onSubmitEditing={submit}
+											placeholder="Max Price"
+											small
+										/>
+									);
+								}}
+							</Field>
+						)}
+					</Form>
 				</View>
 				<Text className="text-lg text-slate-500 my-4">{query}</Text>
 				{isLoading ? (

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Field, Form } from "houseform";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../components/Input";
@@ -11,10 +11,9 @@ import { UpdateContact, createContact, getContact, updateContact } from "../../l
 import { getRecommendations } from "../../lib/recommendations";
 
 const Page = () => {
-	const { id } = useLocalSearchParams<{ id: string }>();
+	const { id, price } = useLocalSearchParams<{ id: string; price?: string }>();
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const [price, setPrice] = useState<string>("");
 	const updateContactMutation = useMutation({
 		mutationFn: updateContact,
 		onSuccess: () => {
@@ -37,8 +36,13 @@ const Page = () => {
 	});
 
 	const { data: recommendations, isFetching } = useQuery(
-		["search", contact?.interests, contact?.relationship],
-		() => getRecommendations(contact!.interests),
+		["search", contact?.interests, contact?.relationship, price],
+		() =>
+			getRecommendations({
+				query: contact!.interests,
+				relationship: contact!.relationship,
+				price,
+			}),
 		{
 			enabled: !!contact,
 			cacheTime: 5 * 60 * 1000,
@@ -56,83 +60,99 @@ const Page = () => {
 				}}
 			/>
 			{contact ? (
-				<Form<UpdateContact>
-					onSubmit={(data) => {
-						updateContactMutation.mutate({ id: contact.id, data });
-					}}
-				>
-					{({ submit }) => (
-						<View className="w-full p-4">
-							<Field name="name" initialValue={contact.name}>
-								{({ value, setValue }) => {
-									return (
-										<Input
-											value={value}
-											onChangeText={setValue}
-											onSubmitEditing={submit}
-											placeholder="Name"
-											icon="alphabetical"
-										/>
-									);
-								}}
-							</Field>
-							<Field name="interests" initialValue={contact.interests}>
-								{({ value, setValue }) => {
-									return (
-										<Input
-											className="mt-4"
-											value={value}
-											onChangeText={setValue}
-											onSubmitEditing={submit}
-											placeholder="Interests, hobbies, etc."
-											icon="basketball"
-										/>
-									);
-								}}
-							</Field>
-							<Field name="relationship" initialValue={contact.relationship}>
-								{({ value, setValue }) => {
-									return (
-										<Input
-											className="mt-4"
-											value={value}
-											onChangeText={setValue}
-											onSubmitEditing={submit}
-											placeholder="Friend, family, etc."
-											icon="account"
-										/>
-									);
-								}}
-							</Field>
+				<>
+					<Form<UpdateContact>
+						onSubmit={(data) => {
+							updateContactMutation.mutate({ id: contact.id, data });
+						}}
+					>
+						{({ submit }) => (
+							<View className="w-full p-4">
+								<Field name="name" initialValue={contact.name}>
+									{({ value, setValue }) => {
+										return (
+											<Input
+												value={value}
+												onChangeText={setValue}
+												onSubmitEditing={submit}
+												placeholder="Name"
+												icon="alphabetical"
+											/>
+										);
+									}}
+								</Field>
+								<Field name="interests" initialValue={contact.interests}>
+									{({ value, setValue }) => {
+										return (
+											<Input
+												className="mt-4"
+												value={value}
+												onChangeText={setValue}
+												onSubmitEditing={submit}
+												placeholder="Interests, hobbies, etc."
+												icon="basketball"
+											/>
+										);
+									}}
+								</Field>
+								<Field name="relationship" initialValue={contact.relationship}>
+									{({ value, setValue }) => {
+										return (
+											<Input
+												className="mt-4"
+												value={value}
+												onChangeText={setValue}
+												onSubmitEditing={submit}
+												placeholder="Friend, family, etc."
+												icon="account"
+											/>
+										);
+									}}
+								</Field>
+							</View>
+						)}
+					</Form>
+					<View className="flex flex-row justify-between items-center w-full px-4 pt-4">
+						<Text className="text-2xl" bold>
+							Gift Ideas
+						</Text>
+						<Form<{ price: string }>
+							onSubmit={({ price }) => router.setParams({ id: contact.id, price })}
+						>
+							{({ submit }) => (
+								<Field name="price" initialValue={""}>
+									{({ value, setValue }) => {
+										return (
+											<Input
+												className="w-auto min-w-[120px]"
+												icon="cash"
+												value={value}
+												onChangeText={setValue}
+												onSubmitEditing={submit}
+												placeholder="Max Price"
+												small
+											/>
+										);
+									}}
+								</Field>
+							)}
+						</Form>
+					</View>
+					{isFetching ? (
+						<View className="flex-1 flex justify-center items-center w-full pb-20">
+							<ActivityIndicator color="#121212" size="large" />
 						</View>
+					) : (
+						<FlatList
+							data={recommendations}
+							className="w-full p-4"
+							renderItem={({ item, index }) => (
+								<RecommendationItem key={index} {...item} />
+							)}
+						/>
 					)}
-				</Form>
+				</>
 			) : null}
-			<View className="flex flex-row justify-between items-center w-full px-4 pt-4">
-				<Text className="text-2xl" bold>
-					Gift Ideas
-				</Text>
-				<Input
-					className="w-auto min-w-[120px]"
-					icon="cash"
-					value={price ?? ""}
-					onChangeText={setPrice}
-					onSubmitEditing={() => queryClient.resetQueries(["search"])}
-					placeholder="Max Price"
-					small
-				/>
-			</View>
-			{isFetching ? (
-				<View className="flex-1 flex justify-center items-center w-full pb-20">
-					<ActivityIndicator color="#121212" size="large" />
-				</View>
-			) : (
-				<FlatList
-					data={recommendations}
-					className="w-full p-4"
-					renderItem={({ item, index }) => <RecommendationItem key={index} {...item} />}
-				/>
-			)}
 		</SafeAreaView>
 	);
 };
